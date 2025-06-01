@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier le livre{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card card-form">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="card-title text-center mb-4">Modifier : {{ livre.titre }}</h2>
+                
+                <form action="{{ url_for('modifier', titre=livre.titre) }}" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.titre.label(class="form-label") }}
+                        {{ form.titre(class="form-control is-invalid" if form.titre.errors else "form-control") }}
+                        {% for error in form.titre.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.auteur.label(class="form-label") }}
+                        {{ form.auteur(class="form-control is-invalid" if form.auteur.errors else "form-control") }}
+                        {% for error in form.auteur.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.annee.label(class="form-label") }}
+                        {{ form.annee(class="form-control is-invalid" if form.annee.errors else "form-control") }}
+                        {% for error in form.annee.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.genre.label(class="form-label") }}
+                        {{ form.genre(class="form-control is-invalid" if form.genre.errors else "form-control") }}
+                        {% for error in form.genre.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control is-invalid" if form.description.errors else "form-control", rows=3) }}
+                        {% for error in form.description.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.note.label(class="form-label") }}
+                        {{ form.note(class="form-select is-invalid" if form.note.errors else "form-select") }}
+                        {% for error in form.note.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                     <div class="mb-3">
+                        {{ form.image_url.label(class="form-label") }}
+                        {{ form.image_url(class="form-control is-invalid" if form.image_url.errors else "form-control") }}
+                        {% for error in form.image_url.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{{ url_for('details_livre', titre=livre.titre) }}" class="btn btn-secondary me-md-2">Annuler</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

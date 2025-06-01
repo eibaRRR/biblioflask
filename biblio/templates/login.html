@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}Connexion - BiblioTech{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100" style="margin-top: -85px;">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-login glassmorphism shadow-lg animate__animated animate__fadeIn">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="card-title text-center mb-4 fw-bold" style="font-family: 'Playfair Display', serif; font-size: 2.2rem;">Bienvenue sur BiblioTech</h2>
+                <p class="text-center text-muted mb-4">Connectez-vous pour explorer notre collection.</p>
+                <form method="post" action="{{ url_for('login') }}" novalidate id="loginForm">
+                    <div class="mb-4 position-relative">
+                        <label for="username" class="form-label floating-label">Nom d'utilisateur</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0"><i class="fas fa-user text-primary"></i></span>
+                            <input type="text" class="form-control form-control-lg border-start-0" id="username" name="username" required aria-describedby="usernameHelp">
+                        </div>
+                        <div id="usernameHelp" class="form-text text-danger d-none">Veuillez entrer un nom d'utilisateur valide.</div>
+                    </div>
+                    <div class="mb-4 position-relative">
+                        <label for="password" class="form-label floating-label">Mot de passe</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0"><i class="fas fa-lock text-primary"></i></span>
+                            <input type="password" class="form-control form-control-lg border-start-0" id="password" name="password" required aria-describedby="passwordHelp">
+                            <button type="button" class="btn btn-outline-secondary border-0 toggle-password" tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="passwordHelp" class="form-text text-danger d-none">Veuillez entrer un mot de passe.</div>
+                    </div>
+                    <div class="d-grid mt-4 mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg cta-button py-3" id="loginButton">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            <span>Se connecter</span>
+                        </button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small>Pas encore de compte ? <a href="{{ url_for('register') }}" class="text-primary fw-bold text-decoration-none">Inscrivez-vous</a></small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des labels flottants
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.position-relative').querySelector('.floating-label').classList.add('label-active');
+        });
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.closest('.position-relative').querySelector('.floating-label').classList.remove('label-active');
+            }
+        });
+        // Vérification initiale pour les champs pré-remplis (si applicable)
+        if (input.value !== '') {
+            input.closest('.position-relative').querySelector('.floating-label').classList.add('label-active');
+        }
+    });
+
+    // Toggle visibility of password
+    const togglePassword = document.querySelector('.toggle-password');
+    const passwordInput = document.querySelector('#password');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // Client-side form validation with visual feedback
+    const loginForm = document.querySelector('#loginForm');
+    const usernameInput = document.querySelector('#username');
+    const passwordHelp = document.querySelector('#passwordHelp');
+    const usernameHelp = document.querySelector('#usernameHelp');
+    const loginButton = document.querySelector('#loginButton');
+
+    loginForm.addEventListener('submit', function(e) {
+        let hasError = false;
+        // Validation du nom d'utilisateur
+        if (!usernameInput.value.trim()) {
+            usernameHelp.classList.remove('d-none');
+            usernameInput.classList.add('is-invalid');
+            hasError = true;
+        } else {
+            usernameHelp.classList.add('d-none');
+            usernameInput.classList.remove('is-invalid');
+        }
+        // Validation du mot de passe
+        if (!passwordInput.value.trim()) {
+            passwordHelp.classList.remove('d-none');
+            passwordInput.classList.add('is-invalid');
+            hasError = true;
+        } else {
+            passwordHelp.classList.add('d-none');
+            passwordInput.classList.remove('is-invalid');
+        }
+        if (hasError) {
+            e.preventDefault();
+            return false;
+        }
+        // Afficher un spinner de chargement lors de la soumission
+        loginButton.querySelector('.spinner-border').classList.remove('d-none');
+        loginButton.querySelector('span:not(.spinner-border)').textContent = 'Connexion en cours...';
+        loginButton.disabled = true;
+    });
+});
+</script>
+<style>
+/* Custom styles for login page */
+.card-login {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-login:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+}
+.floating-label {
+    position: absolute;
+    top: 50%;
+    left: 2.5rem;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+.label-active {
+    top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--primary-accent);
+}
+.form-control-lg {
+    padding: 1.2rem 1rem 0.5rem 2.5rem;
+    border-radius: var(--radius);
+    background-color: transparent;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+.form-control-lg:focus {
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-accent-rgb), 0.25);
+    background-color: transparent;
+    color: var(--text-primary);
+}
+.input-group-text {
+    padding-left: 0.5rem;
+    color: var(--text-secondary);
+}
+.toggle-password {
+    padding-right: 1rem;
+    color: var(--text-secondary);
+}
+.toggle-password:hover {
+    color: var(--primary-accent);
+}
+.cta-button {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.cta-button:hover {
+    transform: translateY(-3px) scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 575.98px) {
+    .card-login {
+        margin: 0 1rem;
+    }
+    .card-body {
+        padding: 2rem 1.5rem;
+    }
+    .floating-label {
+        left: 2rem;
+    }
+    .form-control-lg {
+        padding-left: 2rem;
+    }
+}
+</style>
+{% endblock %}

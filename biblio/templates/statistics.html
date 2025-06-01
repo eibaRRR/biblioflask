@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistiques de la Bibliothèque{% endblock %}
+
+{% block content %}
+<div class="container mt-4 statistics-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0 h2">Statistiques et Rapports</h1>
+        {# Bouton d'exportation global si nécessaire, ou par section #}
+    </div>
+
+    <div class="row mb-4 g-3">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-primary text-white me-3"><i class="fas fa-book"></i></div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Livres au Total</h6>
+                            <p class="display-6 fw-bold mb-0">{{ stats.total_books }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card shadow-sm h-100">
+                <div class="card-body">
+                     <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-info text-white me-3"><i class="fas fa-users"></i></div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Utilisateurs</h6>
+                            <p class="display-6 fw-bold mb-0">{{ stats.total_users }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-success text-white me-3"><i class="fas fa-exchange-alt"></i></div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Emprunts (Total)</h6>
+                            <p class="display-6 fw-bold mb-0">{{ stats.total_loans }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card shadow-sm h-100">
+                <div class="card-body">
+                     <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-warning text-dark me-3"><i class="fas fa-hourglass-half"></i></div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Emprunts (Actuels)</h6>
+                            <p class="display-6 fw-bold mb-0">{{ stats.current_loans }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mt-3"> {# Nouveau KPI pour livres en retard #}
+            <div class="card kpi-card shadow-sm h-100 {% if stats.overdue_books > 0 %}kpi-card-alert{% endif %}">
+                <div class="card-body">
+                     <div class="d-flex align-items-center">
+                        <div class="kpi-icon {% if stats.overdue_books > 0 %}bg-danger{% else %}bg-secondary{% endif %} text-white me-3">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Livres en Retard</h6>
+                            <p class="display-6 fw-bold mb-0">{{ stats.overdue_books }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm chart-card">
+                <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-chart-bar me-2"></i>Livres les plus populaires</span>
+                    <a href="{{ url_for('export_report', report_type='popular_books') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file-excel me-1"></i> Exporter
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if popular_books_chart_labels %}
+                        <canvas id="popularBooksChart"></canvas>
+                    {% else %}
+                        <p class="text-muted text-center p-3">Pas assez de données pour afficher le graphique des livres populaires.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm chart-card">
+                <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-users-cog me-2"></i>Lecteurs les plus actifs</span>
+                     <a href="{{ url_for('export_report', report_type='active_readers') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file-excel me-1"></i> Exporter
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if active_readers_chart_labels %}
+                        <canvas id="activeReadersChart"></canvas>
+                    {% else %}
+                         <p class="text-muted text-center p-3">Pas assez de données pour afficher le graphique des lecteurs actifs.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctxPopularBooks = document.getElementById('popularBooksChart');
+    const popularBooksLabels = {{ popular_books_chart_labels|tojson }};
+    const popularBooksData = {{ popular_books_chart_data|tojson }};
+
+    if (ctxPopularBooks && popularBooksLabels && popularBooksData && popularBooksLabels.length > 0) {
+        new Chart(ctxPopularBooks, {
+            type: 'bar', // Barres horizontales
+            data: {
+                labels: popularBooksLabels,
+                datasets: [{
+                    label: 'Nombre d\'emprunts',
+                    data: popularBooksData,
+                    backgroundColor: 'rgba(99, 102, 241, 0.7)', // primary-accent avec opacité
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4, // Coins arrondis pour les barres
+                    barPercentage: 0.7, // Espacement entre les barres
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Pour faire un graphique à barres horizontales
+                responsive: true,
+                maintainAspectRatio: false, // Permet de mieux gérer la hauteur
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.05)' // Grille plus subtile
+                        },
+                        ticks: {
+                            precision: 0 // Pas de décimales pour les nombres d'emprunts
+                        }
+                    },
+                    y: {
+                         grid: {
+                            display: false // Pas de grille verticale
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false // La légende n'est pas très utile pour un seul dataset
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.8)', // surface-color (dark) avec opacité
+                        titleFont: { weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        padding: 10,
+                        cornerRadius: 6,
+                        displayColors: false, // Pas besoin de la petite boîte de couleur
+                    }
+                }
+            }
+        });
+    }
+
+    const ctxActiveReaders = document.getElementById('activeReadersChart');
+    const activeReadersLabels = {{ active_readers_chart_labels|tojson }};
+    const activeReadersData = {{ active_readers_chart_data|tojson }};
+
+    if (ctxActiveReaders && activeReadersLabels && activeReadersData && activeReadersLabels.length > 0) {
+        new Chart(ctxActiveReaders, {
+            type: 'bar',
+            data: {
+                labels: activeReadersLabels,
+                datasets: [{
+                    label: 'Nombre d\'emprunts',
+                    data: activeReadersData,
+                    backgroundColor: 'rgba(245, 158, 11, 0.7)', // secondary-accent avec opacité
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.7,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                 scales: {
+                    x: {
+                        beginAtZero: true,
+                         grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.05)'
+                        },
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    y: {
+                         grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                     tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                        titleFont: { weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        padding: 10,
+                        cornerRadius: 6,
+                        displayColors: false,
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

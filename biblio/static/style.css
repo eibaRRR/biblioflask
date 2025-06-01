@@ -1,0 +1,930 @@
+/* biblio/static/style.css - Version créative et moderne (améliorée) */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap'); /* Police pour les titres */
+
+
+:root, html[data-theme='light'] {
+    --primary-accent: #6366f1; /* Indigo */
+    --primary-accent-hover: #4f46e5; /* Indigo plus foncé */
+    --secondary-accent: #f59e0b; /* Ambre */
+    --background-color: #fafafa; /* Gris très clair, presque blanc */
+    --surface-color: #ffffff; /* Blanc pur pour les cartes, etc. */
+    --surface-secondary: #f1f5f9; /* Gris clair pour les fonds subtils */
+    --text-primary: #0f172a; /* Ardoise foncée pour le texte principal */
+    --text-secondary: #64748b; /* Ardoise pour le texte secondaire */
+    --border-color: #e2e8f0; /* Gris clair pour les bordures */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.8); /* Fond pour effet verre */
+    --glass-border: rgba(255, 255, 255, 0.2); /* Bordure pour effet verre */
+    --btn-primary-text: #ffffff; /* Texte pour boutons primaires */
+    --success-color: #10b981; /* Vert pour succès */
+    --warning-color: #f59e0b; /* Ambre pour avertissements */
+    --danger-color: #ef4444; /* Rouge pour dangers */
+    --radius-sm: 0.375rem; /* 6px */
+    --radius: 0.5rem; /* 8px */
+    --radius-lg: 0.75rem; /* 12px */
+    --radius-xl: 1rem; /* 16px */
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); /* Transition standard */
+}
+
+html[data-theme='dark'] {
+    --primary-accent: #818cf8; /* Indigo clair */
+    --primary-accent-hover: #6366f1; /* Indigo (comme le light normal) */
+    --secondary-accent: #fbbf24; /* Ambre clair */
+    --background-color: #0f172a; /* Ardoise très foncée (fond principal) */
+    --surface-color: #1e293b; /* Ardoise foncée (cartes, etc.) */
+    --surface-secondary: #334155; /* Ardoise moyenne (fonds subtils) */
+    --text-primary: #f8fafc; /* Presque blanc */
+    --text-secondary: #94a3b8; /* Ardoise claire (texte secondaire) */
+    --border-color: #475569; /* Ardoise (bordures) */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+    --glass-bg: rgba(30, 41, 59, 0.8); /* Fond verre pour thème sombre */
+    --glass-border: rgba(255, 255, 255, 0.1); /* Bordure verre pour thème sombre */
+    --btn-primary-text: #ffffff;
+    --success-color: #34d399; /* Vert clair */
+    --warning-color: #fbbf24; /* Ambre clair */
+    --danger-color: #f87171; /* Rouge clair */
+}
+
+
+/* --- Base --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    padding-top: 85px; /* Ajusté pour la navbar fixe */
+    transition: background-color 0.4s ease, color 0.4s ease;
+    overflow-x: hidden; /* Empêcher le défilement horizontal */
+}
+.container {
+    max-width: 1280px;
+}
+
+/* --- Barre de Navigation --- */
+.navbar.glassmorphism {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-bottom: 1px solid var(--glass-border);
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+}
+.navbar .navbar-brand {
+    color: var(--primary-accent) !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+.navbar .nav-link {
+    color: var(--text-primary) !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+.navbar .nav-link:hover, .navbar .nav-link.active {
+    color: var(--primary-accent) !important;
+}
+.navbar .dropdown-menu {
+    background-color: var(--surface-color);
+    border-color: var(--border-color);
+    border-radius: var(--radius-lg); /* Utilisation variable pour cohérence */
+    box-shadow: var(--shadow);
+}
+.navbar .dropdown-item {
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.navbar .dropdown-item:hover {
+    background-color: var(--primary-accent);
+    color: var(--btn-primary-text) !important;
+}
+html[data-theme='dark'] .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(245, 245, 247, 0.7)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    background-color: var(--primary-accent);
+    background-image: 
+        url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.07'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(0 4)'/%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(26 4)'/%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(13 -8)'/%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(39 -8)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(120deg, var(--primary-accent) 0%, var(--primary-accent-hover) 70%, var(--secondary-accent) 100%);
+    color: var(--btn-primary-text);
+    border-radius: var(--radius-xl); /* Utilisation variable */
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.hero-search-input {
+    border-radius: 50px !important;
+    padding: 0.9rem 1.5rem;
+    border: none;
+    background-color: rgba(255,255,255,0.15);
+    color: var(--btn-primary-text);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+.hero-search-input::placeholder {
+    color: rgba(255,255,255,0.75);
+}
+.hero-search-icon {
+    background-color: transparent !important;
+    border: none !important;
+    color: rgba(255,255,255,0.75) !important;
+    padding-left: 1.5rem;
+}
+html[data-theme='dark'] .hero-section {
+     background-image: 
+        url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(0 4)'/%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(26 4)'/%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(13 -8)'/%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6H0c0-2.21 1.79-4 4-4 3.314 0 6 2.686 6 6Z' transform='translate(39 -8)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(120deg, var(--primary-accent) 0%, var(--primary-accent-hover) 70%, var(--secondary-accent) 100%);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+html[data-theme='dark'] .hero-search-input {
+    background-color: rgba(0,0,0,0.25);
+}
+
+/* --- Titres de Genre --- */
+.genre-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 2.5rem !important;
+    font-size: 2.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+.genre-title span {
+    background: var(--background-color);
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+}
+.genre-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background-color: var(--border-color);
+    z-index: 0;
+}
+
+/* --- Cartes de Livre (Index) --- */
+.book-card-wrapper {
+    opacity: 0; /* Géré par JS pour animation à l'apparition */
+}
+.book-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl); /* Coins plus arrondis */
+    box-shadow: var(--shadow);
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+.book-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: var(--shadow-hover);
+}
+.book-card-image-link {
+    display: block;
+    overflow: hidden;
+}
+.book-card .card-img-top {
+    height: 320px;
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.215, 0.610, 0.355, 1), filter 0.5s ease; /* Ajout transition pour filter */
+    background-color: var(--surface-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    border-top-left-radius: calc(var(--radius-xl) - 1px); /* Ajustement pour bordure interne */
+    border-top-right-radius: calc(var(--radius-xl) - 1px);
+    filter: grayscale(30%); /* Désature légèrement l'image par défaut */
+}
+.book-card:hover .card-img-top {
+    transform: scale(1.1);
+    filter: grayscale(0%); /* Restaure les couleurs vives au survol */
+}
+.book-card .card-img-top[alt]:after {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f02d"; /* Icône livre */
+    font-size: 60px;
+    opacity: 0.2;
+    color: var(--text-secondary);
+}
+.book-card .card-body {
+    padding: 1.25rem;
+}
+.book-card .card-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem !important;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.6em;
+}
+.book-card .card-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem !important;
+}
+.star-rating {
+    color: var(--secondary-accent);
+    font-size: 0.9rem;
+}
+.book-card .details-button {
+    font-weight: 500;
+    font-size: 0.85rem;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    opacity: 0; /* Caché par défaut */
+    transform: translateY(10px); /* Position initiale pour l'animation */
+    transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+.book-card:hover .details-button {
+    opacity: 1; /* Apparaît au survol de la carte */
+    transform: translateY(0);
+}
+.book-card .details-button:hover { /* Style spécifique pour le survol du bouton lui-même */
+    background-color: var(--primary-accent);
+    color: var(--btn-primary-text);
+    transform: scale(1.05) translateY(0); /* Maintenir translateY(0) et ajouter scale */
+}
+
+
+/* --- Badges de Statut --- */
+.status-badge {
+    padding: 0.35em 0.75em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-badge.status-disponible {
+    color: var(--success-color);
+    background-color: color-mix(in srgb, var(--success-color) 15%, transparent);
+}
+.status-badge.status-demande {
+    color: var(--primary-accent);
+    background-color: color-mix(in srgb, var(--primary-accent) 15%, transparent);
+}
+.status-badge.status-emprunte {
+    color: var(--warning-color);
+    background-color: color-mix(in srgb, var(--warning-color) 15%, transparent);
+}
+html[data-theme='dark'] .status-badge.status-disponible {
+    background-color: color-mix(in srgb, var(--success-color) 20%, transparent);
+}
+html[data-theme='dark'] .status-badge.status-demande {
+    background-color: color-mix(in srgb, var(--primary-accent) 20%, transparent);
+}
+html[data-theme='dark'] .status-badge.status-emprunte {
+    background-color: color-mix(in srgb, var(--warning-color) 20%, transparent);
+}
+
+
+/* --- Page de Détails du Livre --- */
+.book-detail-card {
+    border: none;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+}
+.book-detail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.book-detail-card:hover .book-detail-image { /* Léger zoom sur l'image au survol de la carte */
+    transform: scale(1.03);
+}
+.book-details-content {
+    padding: 2.5rem;
+}
+.book-details-content .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+}
+.book-details-content .card-subtitle {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem !important;
+}
+.book-details-content strong {
+    font-weight: 600;
+}
+html[data-theme='dark'] .book-detail-card .badge.bg-secondary {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-secondary) !important;
+}
+
+
+/* --- Formulaires --- */
+.form-control, .form-select {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius); 
+    padding: 0.75rem 1rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* AMÉLIORATION : transition plus douce */
+}
+.form-control::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+.form-control:focus, .form-select:focus {
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--primary-accent) 20%, transparent); /* AMÉLIORATION : color-mix pour l'ombre */
+}
+.card-form .card-body {
+    padding: 2rem 2.5rem !important;
+}
+.card-form .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+}
+
+/* --- Boutons --- */
+.btn {
+    border-radius: 50px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.25s ease-out; /* AMÉLIORATION : transition légèrement différente */
+    letter-spacing: 0.3px;
+}
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-accent) 0%, var(--primary-accent-hover) 100%);
+    border: none;
+    color: var(--btn-primary-text);
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--primary-accent) 20%, transparent);
+}
+.btn-primary:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--primary-accent) 30%, transparent);
+}
+.btn-outline-primary {
+    border-color: var(--primary-accent);
+    color: var(--primary-accent);
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-accent);
+    color: var(--btn-primary-text);
+    transform: scale(1.03);
+}
+/* AMÉLIORATION : Micro-interaction au clic */
+.btn:active {
+    transform: scale(0.97) translateY(1px);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-accent) 15%, transparent);
+}
+.btn-lg {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+}
+.cta-button {
+    box-shadow: 0 8px 25px color-mix(in srgb, var(--primary-accent) 30%, transparent) !important;
+}
+.cta-button:hover {
+     box-shadow: 0 10px 30px color-mix(in srgb, var(--primary-accent) 40%, transparent) !important;
+}
+
+/* --- Styles Génériques pour Dark Mode --- */
+html[data-theme='dark'] .card {
+    background-color: var(--surface-color);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+html[data-theme='dark'] .list-group-item {
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+html[data-theme='dark'] .card-header,
+html[data-theme='dark'] .card-footer {
+    border-color: var(--border-color) !important;
+}
+html[data-theme='dark'] .badge.bg-primary {
+    background-color: var(--primary-accent) !important;
+    color: var(--btn-primary-text) !important;
+}
+html[data-theme='dark'] .text-muted,
+html[data-theme='dark'] .text-body-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* --- Theme Toggle Switch --- */
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+}
+.theme-switch {
+  display: inline-block;
+  height: 26px;
+  position: relative;
+  width: 52px;
+  margin: 0 10px;
+}
+.theme-switch input { display:none; }
+.slider {
+  background-color: var(--surface-secondary);
+  border: 1px solid var(--border-color);
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+  border-radius: 34px;
+}
+.slider:before {
+  background-color: var(--surface-color);
+  bottom: 3px;
+  content: "";
+  height: 18px;
+  left: 4px;
+  position: absolute;
+  transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  width: 18px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+input:checked + .slider { background-color: var(--primary-accent); border-color: var(--primary-accent); }
+input:checked + .slider:before { transform: translateX(26px); background-color: var(--btn-primary-text); }
+
+
+/* Styles pour "Bibliothèque Vide" */
+.empty-library-cta i.fa-book-dead {
+    font-size: 5rem;
+    color: var(--border-color);
+    margin-bottom: 1.5rem !important;
+}
+.empty-library-cta h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-secondary);
+}
+.empty-library-cta .lead {
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+/* Squelette de chargement pour la recherche */
+.skeleton-card {
+    background-color: var(--surface-secondary);
+    border-radius: var(--radius-xl);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.skeleton-image {
+    height: 320px;
+    background-color: var(--border-color);
+    border-top-left-radius: calc(var(--radius-xl) - 1px);
+    border-top-right-radius: calc(var(--radius-xl) - 1px);
+}
+.skeleton-body {
+    padding: 1.25rem;
+}
+.skeleton-line {
+    height: 1.2em;
+    background-color: var(--border-color);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.8em;
+}
+.skeleton-line-short {
+    width: 60%;
+}
+@keyframes skeleton-glow {
+    0% { background-color: var(--border-color); }
+    50% { background-color: color-mix(in srgb, var(--border-color) 60%, var(--surface-secondary) 40%); } /* Animation plus subtile */
+    100% { background-color: var(--border-color); }
+}
+.skeleton-image, .skeleton-line {
+    animation: skeleton-glow 1.8s infinite ease-in-out;
+}
+
+/* --- NOUVEAU : Bouton Scroll to Top --- */
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000; /* Au-dessus des autres éléments */
+    border: none;
+    outline: none;
+    background-color: var(--primary-accent);
+    color: var(--btn-primary-text);
+    cursor: pointer;
+    padding: 10px 13px; /* Ajusté pour un look plus rond */
+    border-radius: 50%;
+    font-size: 20px; /* Taille de l'icône */
+    box-shadow: var(--shadow-lg);
+    opacity: 0; /* Caché par défaut */
+    transform: translateY(30px); /* Position initiale pour animation */
+    pointer-events: none; /* Non interactif quand caché */
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, background-color 0.3s ease;
+}
+#scrollToTopBtn.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto; /* Interactif quand visible */
+}
+#scrollToTopBtn:hover {
+    background-color: var(--primary-accent-hover);
+    transform: translateY(0) scale(1.1); /* Maintenir translateY(0) pour éviter le "saut" */
+}
+/* Assurer que le scale sur hover fonctionne correctement quand le bouton est visible */
+#scrollToTopBtn.show:hover {
+    transform: translateY(0) scale(1.1);
+}
+
+
+/* Ajustements responsives */
+@media (max-width: 767.98px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    .genre-title {
+        font-size: 2rem;
+    }
+    .book-detail-image {
+        height: 350px;
+    }
+    .book-details-content {
+        padding: 1.5rem;
+    }
+    .book-details-content .card-title {
+        font-size: 2rem;
+    }
+    #scrollToTopBtn { /* Ajustement pour mobile */
+        bottom: 20px;
+        right: 20px;
+        padding: 8px 11px;
+        font-size: 18px;
+    }
+}
+profile-page .profile-summary-card {
+    border-radius: var(--radius-lg);
+}
+
+.profile-page .profile-summary-card .fa-user-circle {
+    font-size: 7rem; /* Icône utilisateur plus grande */
+}
+
+.profile-page .profile-tabs .nav-link {
+    color: var(--text-secondary);
+    font-weight: 500;
+    border-radius: var(--radius-lg); /* Onglets plus arrondis */
+    margin: 0 0.25rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.profile-page .profile-tabs .nav-link.active {
+    background-color: var(--primary-accent);
+    color: var(--btn-primary-text);
+    box-shadow: var(--shadow-sm);
+}
+
+.profile-page .profile-tabs .nav-link:not(.active):hover {
+    color: var(--primary-accent);
+    background-color: color-mix(in srgb, var(--primary-accent) 10%, transparent);
+}
+
+.profile-page .book-card-profile {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.profile-page .book-card-profile:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg) !important; /* Important pour outrepasser le shadow-sm initial */
+}
+
+.profile-page .profile-book-cover {
+    width: 70px; /* Taille fixe pour les couvertures dans les listes */
+    height: 100px;
+    object-fit: cover;
+}
+
+.profile-page .list-group-item-action .stretched-link::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    content: "";
+}
+
+/* Style pour les onglets sur mobile pour éviter qu'ils ne soient trop serrés */
+@media (max-width: 575.98px) {
+    .profile-page .profile-tabs .nav-item {
+        flex-basis: 100%; /* Chaque onglet prend toute la largeur */
+        margin-bottom: 0.5rem;
+    }
+    .profile-page .profile-tabs .nav-link {
+        margin: 0;
+    }
+}
+.admin-dashboard-page .kpi-card {
+    border-radius: var(--radius-lg);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none; /* Enlever la bordure par défaut de Bootstrap */
+}
+
+.admin-dashboard-page .kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.admin-dashboard-page .kpi-card .kpi-icon {
+    opacity: 0.7;
+}
+
+.admin-dashboard-page .kpi-card-emprunt {
+    background-color: color-mix(in srgb, var(--primary-accent) 15%, var(--surface-color));
+    color: var(--primary-accent);
+}
+.admin-dashboard-page .kpi-card-emprunt .kpi-icon, 
+.admin-dashboard-page .kpi-card-emprunt .display-5 {
+    color: var(--primary-accent);
+}
+.admin-dashboard-page .kpi-card-emprunt .card-title {
+    color: color-mix(in srgb, var(--primary-accent) 80%, black);
+}
+
+
+.admin-dashboard-page .kpi-card-retour {
+    background-color: color-mix(in srgb, var(--success-color) 15%, var(--surface-color));
+    color: var(--success-color);
+}
+.admin-dashboard-page .kpi-card-retour .kpi-icon,
+.admin-dashboard-page .kpi-card-retour .display-5 {
+    color: var(--success-color);
+}
+.admin-dashboard-page .kpi-card-retour .card-title {
+     color: color-mix(in srgb, var(--success-color) 80%, black);
+}
+
+.admin-dashboard-page .kpi-card-retard {
+    background-color: color-mix(in srgb, var(--warning-color) 15%, var(--surface-color));
+    color: var(--warning-color);
+}
+.admin-dashboard-page .kpi-card-retard .kpi-icon,
+.admin-dashboard-page .kpi-card-retard .display-5 {
+    color: var(--warning-color);
+}
+.admin-dashboard-page .kpi-card-retard .card-title {
+    color: color-mix(in srgb, var(--warning-color) 80%, black);
+}
+.admin-dashboard-page .kpi-card-retard.kpi-card-alert { /* Style plus fort si des retards existent */
+    background-color: color-mix(in srgb, var(--danger-color) 18%, var(--surface-color));
+    color: var(--danger-color);
+}
+.admin-dashboard-page .kpi-card-retard.kpi-card-alert .kpi-icon,
+.admin-dashboard-page .kpi-card-retard.kpi-card-alert .display-5 {
+    color: var(--danger-color);
+}
+.admin-dashboard-page .kpi-card-retard.kpi-card-alert .card-title {
+    color: color-mix(in srgb, var(--danger-color) 80%, black);
+}
+
+
+.admin-dashboard-page .kpi-card-total-empruntes {
+    background-color: color-mix(in srgb, var(--text-secondary) 15%, var(--surface-color));
+    color: var(--text-secondary);
+}
+.admin-dashboard-page .kpi-card-total-empruntes .kpi-icon,
+.admin-dashboard-page .kpi-card-total-empruntes .display-5 {
+    color: var(--text-secondary);
+}
+.admin-dashboard-page .kpi-card-total-empruntes .card-title {
+    color: color-mix(in srgb, var(--text-secondary) 80%, black);
+}
+
+.admin-dashboard-page .admin-section-card {
+    border-radius: var(--radius-lg);
+    overflow: hidden; /* Pour que les list-group-flush respectent les coins arrondis */
+}
+.admin-dashboard-page .admin-section-card .card-header {
+    background-color: var(--surface-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-dashboard-page .admin-item-card {
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color); /* Séparateur entre items */
+    transition: background-color 0.2s ease-in-out;
+}
+.admin-dashboard-page .admin-item-card:last-child {
+    border-bottom: none;
+}
+.admin-dashboard-page .admin-item-card:hover {
+    background-color: var(--surface-secondary);
+}
+
+.admin-dashboard-page .admin-book-cover {
+    width: 50px; /* Taille fixe pour les couvertures dans les listes admin */
+    height: 75px;
+    object-fit: cover;
+}
+
+.admin-dashboard-page .action-buttons .btn {
+    font-size: 0.8rem; /* Boutons d'action un peu plus petits */
+    padding: 0.3rem 0.7rem;
+}
+
+/* Ajustements pour les petits écrans */
+@media (max-width: 767.98px) {
+    .admin-dashboard-page .kpi-card .display-5 {
+        font-size: 2.5rem; /* Taille de police des chiffres KPI réduite sur mobile */
+    }
+    .admin-dashboard-page .action-buttons .btn {
+        width: 100%; /* Boutons pleine largeur sur mobile pour faciliter le clic */
+        margin-bottom: 0.5rem !important;
+    }
+    .admin-dashboard-page .action-buttons .btn:last-child {
+        margin-bottom: 0 !important;
+    }
+    .admin-dashboard-page .admin-item-card .col-md-4.text-md-end {
+        text-align: left !important; /* Aligner les boutons à gauche sur mobile */
+    }
+}
+.sidebar-filters {
+    /* Styles pour la barre latérale des filtres */
+    height: calc(100vh - 100px); /* Hauteur moins le padding-top du body et un peu de marge */
+    overflow-y: auto; /* Permet le défilement si les filtres sont nombreux */
+    top: 100px; /* Doit correspondre au padding-top du body + un peu de marge si navbar fixe */
+    background-color: var(--surface-color); /* Fond pour la sidebar */
+    border-right: 1px solid var(--border-color); /* Petite séparation visuelle */
+}
+
+.sidebar-filters .sidebar-content {
+    background-color: var(--surface-color); /* Assurer un fond pour le contenu */
+    /* border-radius et shadow-sm déjà appliqués via Bootstrap classes */
+}
+
+.sidebar-filters .form-label.fw-semibold {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.sidebar-filters .form-select-sm,
+.sidebar-filters .form-check-input {
+    margin-bottom: 0.5rem; /* Espacement entre les éléments de filtre */
+}
+.sidebar-filters .form-check {
+    padding-left: 1.75em; /* Pour aligner correctement avec la case à cocher */
+}
+.sidebar-filters .form-check-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.sidebar-filters .filter-genre-list {
+    max-height: 250px; /* Hauteur maximale pour la liste des genres */
+    overflow-y: auto; /* Scroll si trop de genres */
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-secondary); /* Léger fond différent */
+}
+
+html[data-theme='dark'] .sidebar-filters {
+    background-color: var(--surface-color);
+    border-right: 1px solid var(--border-color);
+}
+
+html[data-theme='dark'] .sidebar-filters .sidebar-content {
+     background-color: var(--surface-color);
+}
+
+html[data-theme='dark'] .sidebar-filters .filter-genre-list {
+    background-color: var(--background-color); /* Fond plus sombre pour la liste des genres en mode sombre */
+    border-color: var(--border-color);
+}
+
+
+/* Amélioration des badges de statut sur les cartes de livre */
+.book-card .status-badge {
+    font-size: 0.75rem; /* Un peu plus grand pour meilleure lisibilité */
+    padding: 0.4em 0.8em;
+    display: inline-flex; /* Pour aligner l'icône et le texte */
+    align-items: center;
+}
+.book-card .status-badge .fas { /* Icône dans le badge */
+    font-size: 0.8em; /* Taille de l'icône relative au texte du badge */
+}
+
+
+/* Pour s'assurer que le main content ne passe pas sous la sidebar sticky */
+@media (min-width: 768px) { /* md breakpoint */
+}
+.statistics-page .kpi-card {
+    border-radius: var(--radius-lg);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none;
+    overflow: hidden; /* Pour que l'icône ne dépasse pas si elle est grande */
+}
+
+.statistics-page .kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.statistics-page .kpi-card .kpi-icon {
+    font-size: 1.5rem; /* Taille de l'icône KPI */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Empêche l'icône de rétrécir */
+}
+/* Couleurs spécifiques pour les icônes KPI */
+.statistics-page .kpi-card .kpi-icon.bg-primary { background-color: var(--primary-accent) !important; }
+.statistics-page .kpi-card .kpi-icon.bg-info { background-color: #0dcaf0 !important; } /* Couleur Bootstrap Info */
+.statistics-page .kpi-card .kpi-icon.bg-success { background-color: var(--success-color) !important; }
+.statistics-page .kpi-card .kpi-icon.bg-warning { background-color: var(--warning-color) !important; }
+.statistics-page .kpi-card .kpi-icon.bg-danger { background-color: var(--danger-color) !important; }
+.statistics-page .kpi-card .kpi-icon.bg-secondary { background-color: var(--text-secondary) !important; }
+
+
+.statistics-page .kpi-card .display-6 {
+    font-size: 2.25rem; /* Ajuster la taille de la police pour les chiffres KPI */
+}
+.statistics-page .kpi-card-alert .display-6,
+.statistics-page .kpi-card-alert .card-subtitle {
+    color: var(--danger-color) !important;
+}
+.statistics-page .kpi-card-alert .kpi-icon {
+    color: white !important; /* Assurer la lisibilité de l'icône sur fond rouge */
+}
+
+
+.statistics-page .chart-card {
+    border-radius: var(--radius-lg);
+    overflow: hidden; /* Pour que le canvas ne dépasse pas */
+}
+.statistics-page .chart-card .card-header {
+    background-color: var(--surface-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+.statistics-page .chart-card .card-body {
+    min-height: 350px; /* Hauteur minimale pour les graphiques */
+    position: relative; /* Nécessaire pour que le canvas s'adapte bien */
+}
+.statistics-page .chart-card canvas {
+    max-height: 400px; /* Hauteur maximale pour éviter des graphiques trop grands */
+}
+
+/* Adaptation pour les écrans plus petits */
+@media (max-width: 575.98px) {
+    .statistics-page .kpi-card .display-6 {
+        font-size: 1.8rem;
+    }
+    .statistics-page .kpi-card .kpi-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    .statistics-page .kpi-card .card-body .d-flex > div:last-child { /* Pour le texte à côté de l'icône */
+        text-align: left; /* Éviter le centrage si le texte passe sur plusieurs lignes */
+    }
+}

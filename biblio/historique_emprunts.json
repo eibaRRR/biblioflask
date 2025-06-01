@@ -1,0 +1,45 @@
+[
+    {
+        "user_id": 2,
+        "username": "mrwisky1dd",
+        "livre_titre": "L'Étranger",
+        "date_emprunt": "2025-05-30T10:22:37.005694Z",
+        "date_retour": "2025-05-30T11:42:31.542324Z"
+    },
+    {
+        "user_id": 1,
+        "username": "admin",
+        "livre_titre": "L'Étranger",
+        "date_emprunt": "2025-05-30T11:51:38.288535Z",
+        "date_retour": "2025-05-30T11:51:53.122442Z"
+    },
+    {
+        "user_id": 2,
+        "username": "mrwisky1dd",
+        "livre_titre": "L'Étranger",
+        "date_emprunt": "2025-05-30T12:00:12.259625Z",
+        "date_retour": "2025-05-30T12:00:40.389577Z"
+    },
+    {
+        "user_id": 2,
+        "username": "mrwisky1dd",
+        "livre_titre": "Le Petit Prince",
+        "date_emprunt": "2025-05-30T23:08:50.756851Z",
+        "date_retour": "2025-05-30T23:43:33.843809Z"
+    },
+    {
+        "user_id": 2,
+        "username": "mrwisky1dd",
+        "livre_titre": "Le Rouge et le Noir",
+        "date_emprunt": "2025-05-31T11:17:46.220483Z",
+        "date_retour": "2025-05-31T12:23:34.086231Z"
+    },
+    {
+        "user_id": 3,
+        "username": "mrwisky1",
+        "livre_titre": "Le Rouge et le Noir",
+        "date_emprunt": "2025-05-31T12:23:41.232205Z",
+        "date_retour_prevue": "2025-06-07T12:23:41.232205Z",
+        "date_retour": null
+    }
+]

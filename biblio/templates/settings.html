@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% block title %}Paramètres Administrateur - BiblioTech{% endblock %}
+
+{% block content %}
+<div class="container mt-4 settings-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0 h2" style="font-family: 'Playfair Display', serif;">
+            <i class="fas fa-cogs text-primary me-2"></i>Paramètres Généraux
+        </h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour au Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Configuration Principale -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4 glassmorphism settings-card">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-sliders-h text-primary me-2"></i>Configuration Principale
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('settings') }}" method="post" id="mainSettingsForm" novalidate>
+                        <input type="hidden" name="action" value="save_main_settings">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="max_loans_per_user" class="form-label fw-semibold">
+                                    <i class="fas fa-users me-1 text-muted"></i>Prêts simultanés par utilisateur
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control form-control-lg" 
+                                           id="max_loans_per_user" name="max_loans_per_user" 
+                                           value="{{ settings.max_loans_per_user }}" 
+                                           min="1" max="20" required>
+                                    <span class="input-group-text">livres</span>
+                                </div>
+                                <div class="form-text">Nombre maximum de livres qu'un utilisateur peut emprunter simultanément.</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="loan_duration_days" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-alt me-1 text-muted"></i>Durée de prêt standard
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control form-control-lg" 
+                                           id="loan_duration_days" name="loan_duration_days" 
+                                           value="{{ settings.loan_duration_days }}" 
+                                           min="1" max="365" required>
+                                    <span class="input-group-text">jours</span>
+                                </div>
+                                <div class="form-text">Durée par défaut d'un prêt de livre.</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-bell text-warning me-2"></i>Personnalisation des Notifications
+                        </h6>
+                        <div class="alert alert-info d-flex align-items-center mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <small>Utilisez <code>{livre_titre}</code> pour insérer automatiquement le titre du livre dans vos messages.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="loan_approved" class="form-label fw-semibold">
+                                <i class="fas fa-check-circle text-success me-1"></i>Message d'approbation d'emprunt
+                            </label>
+                            <textarea class="form-control" id="loan_approved" name="loan_approved" 
+                                      rows="3" required placeholder="Votre message d'approbation...">{{ settings.notification_templates.loan_approved }}</textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="loan_refused" class="form-label fw-semibold">
+                                <i class="fas fa-times-circle text-danger me-1"></i>Message de refus d'emprunt
+                            </label>
+                            <textarea class="form-control" id="loan_refused" name="loan_refused" 
+                                      rows="3" required placeholder="Votre message de refus...">{{ settings.notification_templates.loan_refused }}</textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-lg px-4" id="saveSettingsBtn">
+                                <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestion des Catégories -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm glassmorphism settings-card">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-tags text-primary me-2"></i>Gestion des Catégories
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Liste des catégories existantes -->
+                    <div class="mb-4">
+                        <h6 class="fw-semibold mb-3">Catégories existantes</h6>
+                        {% if settings.categories %}
+                            <div class="category-list" style="max-height: 300px; overflow-y: auto;">
+                                {% for category in settings.categories | sort %}
+                                <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded category-item">
+                                    <span class="fw-medium">
+                                        <i class="fas fa-tag text-muted me-2"></i>{{ category }}
+                                    </span>
+                                    <a href="{{ url_for('delete_category', category_name=category) }}" 
+                                       class="btn btn-sm btn-outline-danger delete-category-btn" 
+                                       data-category="{{ category }}"
+                                       title="Supprimer cette catégorie">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center text-muted py-3">
+                                <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                                <small>Aucune catégorie définie.</small>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+
+                    <!-- Formulaire d'ajout de catégorie -->
+                    <div>
+                        <h6 class="fw-semibold mb-3">Ajouter une nouvelle catégorie</h6>
+                        <form action="{{ url_for('add_category') }}" method="post" id="addCategoryForm" novalidate>
+                            <div class="input-group">
+                                <input type="text" name="category_name" class="form-control" 
+                                       placeholder="Nom de la catégorie" required 
+                                       id="categoryNameInput" maxlength="50">
+                                <button class="btn btn-success" type="submit" id="addCategoryBtn">
+                                    <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Maximum 50 caractères.</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du formulaire principal
+    const mainSettingsForm = document.querySelector('#mainSettingsForm');
+    const saveSettingsBtn = document.querySelector('#saveSettingsBtn');
+    
+    if (mainSettingsForm) {
+        mainSettingsForm.addEventListener('submit', function(e) {
+            // Validation côté client
+            const maxLoans = document.querySelector('#max_loans_per_user').value;
+            const loanDuration = document.querySelector('#loan_duration_days').value;
+            
+            if (!maxLoans || maxLoans < 1 || maxLoans > 20) {
+                e.preventDefault();
+                alert('Le nombre de prêts simultanés doit être entre 1 et 20.');
+                return false;
+            }
+            
+            if (!loanDuration || loanDuration < 1 || loanDuration > 365) {
+                e.preventDefault();
+                alert('La durée de prêt doit être entre 1 et 365 jours.');
+                return false;
+            }
+            
+            // Afficher le spinner de chargement
+            if (saveSettingsBtn) {
+                saveSettingsBtn.querySelector('.spinner-border').classList.remove('d-none');
+                saveSettingsBtn.disabled = true;
+            }
+        });
+    }
+    
+    // Gestion du formulaire d'ajout de catégorie
+    const addCategoryForm = document.querySelector('#addCategoryForm');
+    const addCategoryBtn = document.querySelector('#addCategoryBtn');
+    const categoryNameInput = document.querySelector('#categoryNameInput');
+    
+    if (addCategoryForm) {
+        addCategoryForm.addEventListener('submit', function(e) {
+            const categoryName = categoryNameInput.value.trim();
+            
+            if (!categoryName) {
+                e.preventDefault();
+                alert('Veuillez entrer un nom de catégorie.');
+                return false;
+            }
+            
+            if (categoryName.length > 50) {
+                e.preventDefault();
+                alert('Le nom de la catégorie ne peut pas dépasser 50 caractères.');
+                return false;
+            }
+            
+            // Afficher le spinner de chargement
+            if (addCategoryBtn) {
+                addCategoryBtn.querySelector('.spinner-border').classList.remove('d-none');
+                addCategoryBtn.disabled = true;
+            }
+        });
+    }
+    
+    // Gestion de la suppression de catégorie avec confirmation
+     const deleteCategoryBtns = document.querySelectorAll('.delete-category-btn');
+    deleteCategoryBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault(); // Empêche le lien de s'activer immédiatement
+            
+            const categoryName = this.dataset.category; // Récupère le nom de la catégorie
+            const deleteUrl = this.href; // L'URL de suppression
+
+            Swal.fire({
+                title: 'Êtes-vous vraiment sûr ?',
+                text: `Voulez-vous supprimer la catégorie "${categoryName}" ? Cette action est irréversible.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--danger-color)', // Utilise vos variables CSS
+                cancelButtonColor: 'var(--text-secondary)',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler',
+                // Applique le style personnalisé pour le mode sombre/clair
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    htmlContainer: 'swal-custom-html'
+                }
+            }).then((result) => {
+                // Si l'utilisateur clique sur "Oui, supprimer !"
+                if (result.isConfirmed) {
+                    // On le redirige vers l'URL de suppression
+                    window.location.href = deleteUrl;
+                }
+            });
+        });
+    });
+    
+    // Animation des cartes de paramètres
+    const settingsCards = document.querySelectorAll('.settings-card');
+    if (typeof observeAnimatedElements === 'function') {
+        observeAnimatedElements(settingsCards);
+    } else {
+        settingsCards.forEach(card => {
+            card.style.opacity = 1;
+            card.style.transform = 'translateY(0) scale(1)';
+        });
+    }
+});
+</script>
+<style>
+/* Custom styles for settings page */
+.settings-page .settings-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0; /* Pour l'animation d'apparition */
+}
+
+.settings-page .settings-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.settings-page .category-item {
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.settings-page .category-item:hover {
+    background-color: var(--surface-color);
+}
+
+.settings-page .category-list {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    background-color: var(--surface-secondary);
+}
+
+.settings-page .form-control:focus,
+.settings-page .form-select:focus {
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-accent-rgb), 0.25);
+}
+
+.settings-page .input-group-text {
+    background-color: var(--surface-secondary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .settings-page .card-body {
+        padding: 1.5rem !important;
+    }
+    
+    .settings-page .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}

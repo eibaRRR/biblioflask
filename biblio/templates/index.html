@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% block title %}Accueil - Bibliothèque Moderne{% endblock %}
+
+{% block content %}
+<section class="hero-section text-center py-5 mb-4">
+    <div class="container">
+        <h1 class="display-4 fw-bold hero-title">Découvrez Votre Prochaine Lecture</h1>
+        <p class="lead hero-subtitle">Explorez un univers de connaissances et d'aventures.</p>
+        <form action="{{ url_for('index') }}" method="get" class="search-container mt-4" id="mainSearchAndFilterForm">
+            <div class="input-group input-group-lg shadow-sm">
+                <span class="input-group-text hero-search-icon"><i class="fas fa-search"></i></span>
+                <input class="form-control hero-search-input" type="search" id="searchInput" 
+                       placeholder="Rechercher un titre, auteur, année..." name="recherche" 
+                       value="{{ query or '' }}" autocomplete="off" aria-label="Rechercher un livre">
+            </div>
+        </form>
+    </div>
+</section>
+
+<div class="container-fluid px-md-4">
+    <div class="row">
+        <!-- Sidebar des filtres -->
+        <aside class="col-lg-3 col-md-4 sidebar-filters sticky-md-top d-none d-md-block">
+            <div class="sidebar-content p-3 rounded shadow-sm glassmorphism">
+                <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filtres & Tri</h5>
+                <form action="{{ url_for('index') }}" method="get" id="filterSortForm">
+                    <input type="hidden" name="recherche" value="{{ query or '' }}">
+
+                    <div class="mb-3">
+                        <label for="triSelect" class="form-label fw-semibold">Trier par :</label>
+                        <select name="tri" id="triSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="note_desc" {% if tri == 'note_desc' %}selected{% endif %}>Popularité</option>
+                            <option value="titre_asc" {% if tri == 'titre_asc' %}selected{% endif %}>Titre (A-Z)</option>
+                            <option value="auteur_asc" {% if tri == 'auteur_asc' %}selected{% endif %}>Auteur (A-Z)</option>
+                            <option value="annee_desc" {% if tri == 'annee_desc' %}selected{% endif %}>Nouveautés</option>
+                            <option value="annee_asc" {% if tri == 'annee_asc' %}selected{% endif %}>Anciens</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="disponibilite" value="true" id="dispoCheck" 
+                                   {% if show_available_only %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="form-check-label" for="dispoCheck">
+                                Afficher seulement les disponibles
+                            </label>
+                        </div>
+                    </div>
+                    
+                    {% if all_available_genres %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Genres :</label>
+                        <div class="filter-genre-list" role="group" aria-label="Filtres par genre">
+                            {% for genre_name in all_available_genres %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="genre_filter" value="{{ genre_name }}" 
+                                       id="genre_{{ loop.index }}" {% if genre_name in selected_genres %}checked{% endif %} 
+                                       onchange="this.form.submit()">
+                                <label class="form-check-label" for="genre_{{ loop.index }}">
+                                    {{ genre_name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </aside>
+
+        <!-- Bouton filtres mobile -->
+        <div class="col-12 d-md-none mb-3">
+            <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilters" aria-controls="mobileFilters">
+                <i class="fas fa-filter me-2"></i>Filtres & Tri
+            </button>
+        </div>
+
+        <!-- Contenu principal -->
+        <main class="col-lg-9 col-md-8 main-content">
+            <!-- Indicateurs de filtres actifs -->
+            {% if show_available_only or selected_genres %}
+            <div class="mb-3 d-flex flex-wrap gap-2" id="activeFilters">
+                {% if show_available_only %}
+                    <span class="badge bg-info text-white">
+                        <i class="fas fa-check-circle me-1"></i>Disponibles uniquement
+                        <a href="{{ url_for('index', recherche=query, tri=tri, genre_filter=selected_genres) }}" class="text-white ms-1">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                {% endif %}
+                {% for genre in selected_genres %}
+                    <span class="badge bg-secondary text-white">
+                        <i class="fas fa-tag me-1"></i>{{ genre }}
+                        <a href="{{ url_for('index', recherche=query, tri=tri, disponibilite='true' if show_available_only else 'false', genre_filter=selected_genres|reject('equalto', genre)|list) }}" class="text-white ms-1">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Conteneur pour les résultats de recherche en temps réel -->
+            <div id="realtime-results-container"></div>
+
+            <!-- Contenu par défaut -->
+            <div id="default-content">
+                {% if not livres_par_genre.get("Résultats") and query %}
+                    <!-- Message géré par app.py avec flash si recherche ne donne rien -->
+                {% elif not livres_par_genre and not query %}
+                    <div class="empty-library-cta text-center py-5 my-5">
+                        <i class="fas fa-book-dead fa-4x text-muted mb-3"></i>
+                        <h2 class="mb-3">Votre bibliothèque semble un peu vide...</h2>
+                        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                        <p class="lead text-muted">Commencez par ajouter quelques pépites !</p>
+                        <a href="{{ url_for('ajouter') }}" class="btn btn-lg btn-primary mt-3 cta-button">
+                            <i class="fas fa-plus-circle me-2"></i>Ajouter votre premier livre
+                        </a>
+                        {% else %}
+                        <p class="lead text-muted">Revenez bientôt pour découvrir notre collection.</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    {% for section_title, livres_in_section in livres_par_genre.items() %}
+                        <div class="genre-section mt-0 mb-5">
+                            <h2 class="genre-title mb-4"><span>{{ section_title }}</span></h2>
+                            {% if livres_in_section %}
+                                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                                    {% for livre in livres_in_section %}
+                                    <div class="col book-card-wrapper">
+                                        <div class="card h-100 book-card shadow-sm glassmorphism">
+                                            <a href="{{ url_for('details_livre', titre=livre.titre) }}" class="text-decoration-none book-card-image-link">
+                                                <img src="{{ livre.image_url or url_for('static', filename='images/default_cover_creative.png') }}"
+                                                     class="card-img-top"
+                                                     alt="Couverture de {{ livre.titre }}"
+                                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default_cover_creative.png') }}';">
+                                            </a>
+                                            <div class="card-body d-flex flex-column">
+                                                <div class="flex-grow-1 mb-2">
+                                                    <div class="star-rating mb-1">
+                                                        {% set note = livre.note|int %}
+                                                        {% for i in range(1, 6) %}
+                                                            <i class="fa-star {% if i <= note %}fas{% else %}far{% endif %}"></i>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <a href="{{ url_for('details_livre', titre=livre.titre) }}" class="text-decoration-none">
+                                                        <h5 class="card-title mb-1">{{ livre.titre }}</h5>
+                                                    </a>
+                                                    <h6 class="card-subtitle text-muted small">par {{ livre.auteur }}</h6>
+                                                </div>
+                                                <div class="mt-auto">
+                                                    {% if livre.statut_etat == 'disponible' %}
+                                                        <span class="status-badge status-disponible">
+                                                            <i class="fas fa-check-circle me-1"></i>Disponible
+                                                        </span>
+                                                    {% elif livre.statut_etat == 'demande_emprunt_en_attente' %}
+                                                        <span class="status-badge status-demande">
+                                                            <i class="fas fa-hourglass-half me-1"></i>Demandé
+                                                        </span>
+                                                    {% elif livre.statut_etat == 'retour_en_attente' %}
+                                                        <span class="status-badge status-emprunte">
+                                                            <i class="fas fa-undo me-1"></i>Retour en attente
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="status-badge status-emprunte">
+                                                            <i class="fas fa-times-circle me-1"></i>Emprunté
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-transparent border-top-0 pt-2 pb-3 px-3">
+                                                <a href="{{ url_for('details_livre', titre=livre.titre) }}" class="btn btn-sm btn-outline-primary w-100 details-button">
+                                                    Voir les détails <i class="fas fa-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-center text-muted">Aucun livre ne correspond à ces critères pour cette section.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Pagination -->
+                    {% if pagination and pagination.pages > 1 %}
+                        <nav aria-label="Pagination des livres" class="mt-5">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('index', page=pagination.prev_num, recherche=query, tri=tri, disponibilite='true' if show_available_only else 'false', genre_filter=selected_genres) if pagination.has_prev else '#' }}" aria-label="Précédent">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                
+                                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                    {% if page_num %}
+                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                            <a class="page-link" href="{{ url_for('index', page=page_num, recherche=query, tri=tri, disponibilite='true' if show_available_only else 'false', genre_filter=selected_genres) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('index', page=pagination.next_num, recherche=query, tri=tri, disponibilite='true' if show_available_only else 'false', genre_filter=selected_genres) if pagination.has_next else '#' }}" aria-label="Suivant">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Offcanvas pour filtres mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFilters" aria-labelledby="mobileFiltersLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="mobileFiltersLabel">
+            <i class="fas fa-filter me-2"></i>Filtres & Tri
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form action="{{ url_for('index') }}" method="get" id="mobileFilterSortForm">
+            <input type="hidden" name="recherche" value="{{ query or '' }}">
+
+            <div class="mb-3">
+                <label for="mobileTriSelect" class="form-label fw-semibold">Trier par :</label>
+                <select name="tri" id="mobileTriSelect" class="form-select" onchange="this.form.submit()">
+                    <option value="note_desc" {% if tri == 'note_desc' %}selected{% endif %}>Popularité</option>
+                    <option value="titre_asc" {% if tri == '                    titre_asc' %}selected{% endif %}>Titre (A-Z)</option>
+                    <option value="auteur_asc" {% if tri == 'auteur_asc' %}selected{% endif %}>Auteur (A-Z)</option>
+                    <option value="annee_desc" {% if tri == 'annee_desc' %}selected{% endif %}>Nouveautés</option>
+                    <option value="annee_asc" {% if tri == 'annee_asc' %}selected{% endif %}>Anciens</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="disponibilite" value="true" id="mobileDispoCheck" 
+                           {% if show_available_only %}checked{% endif %} onchange="this.form.submit()">
+                    <label class="form-check-label" for="mobileDispoCheck">
+                        Afficher seulement les disponibles
+                    </label>
+                </div>
+            </div>
+            
+            {% if all_available_genres %}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Genres :</label>
+                <div class="filter-genre-list" role="group" aria-label="Filtres par genre">
+                    {% for genre_name in all_available_genres %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="genre_filter" value="{{ genre_name }}" 
+                               id="mobileGenre_{{ loop.index }}" {% if genre_name in selected_genres %}checked{% endif %} 
+                               onchange="this.form.submit()">
+                        <label class="form-check-label" for="mobileGenre_{{ loop.index }}">
+                            {{ genre_name }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des labels flottants
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.position-relative').querySelector('.floating-label').classList.add('label-active');
+        });
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.closest('.position-relative').querySelector('.floating-label').classList.remove('label-active');
+            }
+        });
+        // Vérification initiale pour les champs pré-remplis (si applicable)
+        if (input.value !== '') {
+            input.closest('.position-relative').querySelector('.floating-label').classList.add('label-active');
+        }
+    });
+
+    // Client-side form validation with visual feedback
+    const filterSortForm = document.querySelector('#filterSortForm');
+    const mobileFilterSortForm = document.querySelector('#mobileFilterSortForm');
+
+    filterSortForm.addEventListener('submit', function(e) {
+        // Validation des champs si nécessaire
+        // Ajoutez ici toute logique de validation si besoin
+    });
+
+    mobileFilterSortForm.addEventListener('submit', function(e) {
+        // Validation des champs si nécessaire
+        // Ajoutez ici toute logique de validation si besoin
+    });
+});
+</script>
+<style>
+/* Custom styles for index page */
+.hero-section {
+    background: var(--primary-accent);
+    color: var(--btn-primary-text);
+    border-radius: var(--radius-xl);
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.genre-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 2.5rem !important;
+    font-size: 2.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+.genre-title span {
+    background: var(--background-color);
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+}
+.genre-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background-color: var(--border-color);
+    z-index: 0;
+}
+</style>
+{% endblock %}

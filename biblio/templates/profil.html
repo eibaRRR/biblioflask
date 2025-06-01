@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% block title %}Mon Profil - {{ current_user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 profile-page">
+    <div class="row g-4">
+        {# --- COLONNE DE GAUCHE : CARTE DE PROFIL --- #}
+        <div class="col-lg-4 mb-4 mb-lg-0">
+            <div class="card shadow-sm profile-summary-card sticky-lg-top" style="top: 100px;">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-user-circle fa-6x text-primary mb-3"></i>
+                    <h4 class="card-title mb-1">{{ current_user.username }}</h4>
+                    <p class="text-muted mb-4">
+                        <span class="badge rounded-pill fs-6 fw-normal" style="background-color: var(--primary-accent-hover); color: var(--btn-primary-text);">{{ current_user.role|capitalize }}</span>
+                    </p>
+                    
+                    <div class="d-flex justify-content-around text-center mt-4 pt-3 border-top">
+                        <div class="profile-stat">
+                            <i class="fas fa-book-reader fa-2x text-primary-accent mb-2"></i>
+                            <p class="mb-0 fw-bold fs-4">{{ livres_empruntes_details|length }}</p>
+                            <small class="text-muted">Emprunt(s)</small>
+                        </div>
+                        <div class="profile-stat">
+                            <i class="fas fa-bookmark fa-2x text-warning mb-2"></i>
+                            <p class="mb-0 fw-bold fs-4">{{ reservations_utilisateur|length }}</p>
+                            <small class="text-muted">Réservation(s)</small>
+                        </div>
+                        <div class="profile-stat">
+                            <i class="fas fa-history fa-2x text-success mb-2"></i>
+                            <p class="mb-0 fw-bold fs-4">{{ historique_emprunts|length }}</p>
+                            <small class="text-muted">Historique</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# --- COLONNE DE DROITE : ONGLETS D'INFORMATIONS --- #}
+        <div class="col-lg-8">
+            <ul class="nav nav-pills nav-fill mb-4 profile-tabs" id="profileTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="emprunts-tab" data-bs-toggle="tab" data-bs-target="#emprunts" type="button" role="tab" aria-controls="emprunts" aria-selected="true">
+                        <i class="fas fa-hand-holding-heart me-2"></i>Emprunts Actuels
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reservations-tab" data-bs-toggle="tab" data-bs-target="#reservations" type="button" role="tab" aria-controls="reservations" aria-selected="false">
+                        <i class="fas fa-calendar-check me-2"></i>Mes Réservations
+                    </button>
+                </li>
+                {% if current_user.role != 'admin' %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="historique" aria-selected="false">
+                        <i class="fas fa-archive me-2"></i>Mon Historique
+                    </button>
+                </li>
+                {% endif %}
+            </ul>
+
+            <div class="tab-content" id="profileTabContent">
+                {# --- ONGLET : EMPRUNTS ACTUELS --- #}
+                <div class="tab-pane fade show active" id="emprunts" role="tabpanel" aria-labelledby="emprunts-tab">
+                    {% if livres_empruntes_details %}
+                        <div class="list-group loan-list">
+                            {% for item in livres_empruntes_details %}
+                            <div class="list-group-item list-group-item-action p-3 mb-3 shadow-sm rounded-3 loan-card {% if item.est_en_retard %}loan-overdue{% endif %}">
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        <a href="{{ url_for('details_livre', titre=item.livre.titre) }}">
+                                            <img src="{{ item.livre.image_url or url_for('static', filename='images/default_cover_creative.png') }}" alt="Couverture de {{ item.livre.titre }}" class="img-fluid rounded profile-book-cover">
+                                        </a>
+                                    </div>
+                                    <div class="col">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h5 class="mb-1 h6">
+                                                    <a href="{{ url_for('details_livre', titre=item.livre.titre) }}" class="text-decoration-none stretched-link-custom">{{ item.livre.titre }}</a>
+                                                </h5>
+                                                <p class="mb-2 text-muted small">par {{ item.livre.auteur }}</p>
+                                            </div>
+                                            <div class="text-end">
+                                                {% if item.livre.statut_etat == 'emprunté' %}
+                                                <a href="{{ url_for('demander_retour', titre=item.livre.titre) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-undo me-1"></i> Demander Retour
+                                                </a>
+                                                {% elif item.livre.statut_etat == 'retour_en_attente' %}
+                                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                    <i class="fas fa-clock me-1"></i> Retour Demandé
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        {# -- NOUVEAU : Barre de progression du prêt -- #}
+                                        {% if item.date_emprunt and item.date_retour_prevue %}
+                                            {% set total_duration = (item.date_retour_prevue - item.date_emprunt).days %}
+                                            {% set elapsed_duration = (now - item.date_emprunt).days %}
+                                            {% set progress_percentage = (elapsed_duration * 100 / total_duration)|round|int %}
+                                            {% if progress_percentage > 100 %} {% set progress_percentage = 100 %} {% endif %}
+                                            
+                                            <div class="loan-timeline mt-2">
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar {% if item.est_en_retard %}bg-danger{% else %}bg-primary{% endif %}" role="progressbar" style="width: {{ progress_percentage }}%;" aria-valuenow="{{ progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <div class="d-flex justify-content-between small text-muted mt-1">
+                                                    <span>Emprunté le {{ item.date_emprunt|format_datetime('%d/%m/%y') }}</span>
+                                                    <span>Retour le {{ item.date_retour_prevue|format_datetime('%d/%m/%y') }}</span>
+                                                </div>
+                                            </div>
+                                            {% if item.est_en_retard %}
+                                                <div class="alert alert-danger d-flex align-items-center p-2 mt-2 small">
+                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                    Livre en retard !
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light text-center border-0 p-4">
+                            <i class="fas fa-book-reader fa-3x mb-3 text-muted"></i>
+                            <h5 class="mb-1">Aucun emprunt en cours.</h5>
+                            <p class="text-muted">Explorez la bibliothèque pour trouver votre prochaine lecture !</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# --- ONGLET : MES RESERVATIONS --- #}
+                <div class="tab-pane fade" id="reservations" role="tabpanel" aria-labelledby="reservations-tab">
+                     {% if reservations_utilisateur %}
+                        <div class="list-group reservation-list">
+                            {% for reservation in reservations_utilisateur %}
+                                {% if reservation.livre %}
+                                {% set queue_position = reservation.livre.reservations|sort(attribute='date_reservation')|map(attribute='user_id')|list|index(current_user.id) + 1 %}
+                                <div class="list-group-item list-group-item-action p-3 mb-3 shadow-sm rounded-3 loan-card">
+                                    <div class="row g-3 align-items-center">
+                                        <div class="col-auto">
+                                            <a href="{{ url_for('details_livre', titre=reservation.livre.titre) }}">
+                                                <img src="{{ reservation.livre.image_url or url_for('static', filename='images/default_cover_creative.png') }}" alt="Couverture de {{ reservation.livre.titre }}" class="img-fluid rounded profile-book-cover">
+                                            </a>
+                                        </div>
+                                        <div class="col">
+                                            <h5 class="mb-1 h6">
+                                                <a href="{{ url_for('details_livre', titre=reservation.livre.titre) }}" class="text-decoration-none stretched-link-custom">{{ reservation.livre.titre }}</a>
+                                            </h5>
+                                            <p class="mb-1 text-muted small">par {{ reservation.livre.auteur }}</p>
+                                            <p class="mb-2 text-muted small">Réservé le : {{ reservation.date_reservation|format_datetime('%d/%m/%Y') }}</p>
+                                            <span class="badge bg-warning text-dark"><i class="fas fa-user-friends me-1"></i>Position : {{ queue_position }} / {{ reservation.livre.reservations|length }}</span>
+                                        </div>
+                                        <div class="col-md-3 text-md-end mt-2 mt-md-0">
+                                            <form action="{{ url_for('annuler_reservation', reservation_id=reservation.id) }}" method="POST" onsubmit="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-times-circle me-1"></i> Annuler
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light text-center border-0 p-4">
+                            <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
+                            <h5 class="mb-1">Aucune réservation en cours.</h5>
+                            <p class="text-muted">Vous pouvez réserver un livre lorsqu'il est déjà emprunté.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# --- ONGLET : HISTORIQUE --- #}
+                <div class="tab-pane fade" id="historique" role="tabpanel" aria-labelledby="historique-tab">
+                    {% if historique_emprunts %}
+                         <div class="list-group history-list">
+                            {% for emprunt in historique_emprunts %}
+                            {% if emprunt.media %}
+                            <div class="list-group-item p-3 mb-3 shadow-sm rounded-3 loan-card">
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        <img src="{{ emprunt.media.image_url or url_for('static', filename='images/default_cover_creative.png') }}" alt="Couverture de {{ emprunt.media.titre }}" class="img-fluid rounded profile-book-cover">
+                                    </div>
+                                    <div class="col">
+                                        <h5 class="mb-1 h6">{{ emprunt.media.titre }}</h5>
+                                        <p class="mb-1 text-muted small">par {{ emprunt.media.auteur if emprunt.media.type == 'livre' else 'N/A' }}</p>
+                                        <p class="mb-1 text-muted small">Emprunté le : {{ emprunt.date_emprunt|format_datetime('%d/%m/%Y') }}</p>
+                                        {% if emprunt.date_retour %}
+                                        <p class="mb-0 text-muted small">Retourné le : {{ emprunt.date_retour|format_datetime('%d/%m/%Y') }}</p>
+                                        {% else %}
+                                        <p class="mb-0 text-warning small">Non retourné</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary text-center">
+                            <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                            Votre historique d'emprunts est vide.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block page_scripts %}
+{# --- AJOUTEZ CE BLOC DE STYLE POUR LES AMÉLIORATIONS VISUELLES --- #}
+<style>
+.profile-page .profile-summary-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+}
+.profile-page .profile-stat {
+    width: 30%;
+}
+.profile-page .profile-tabs .nav-link {
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-radius: var(--radius);
+    margin: 0 0.25rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+.profile-page .profile-tabs .nav-link.active {
+    background-color: var(--primary-accent) !important;
+    color: var(--btn-primary-text) !important;
+    border-color: var(--primary-accent) !important;
+    box-shadow: var(--shadow-sm);
+}
+.profile-page .profile-tabs .nav-link:not(.active):hover {
+    color: var(--primary-accent);
+}
+.profile-page .loan-card {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+.profile-page .loan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg) !important;
+}
+.profile-page .loan-overdue {
+    border-left: 5px solid var(--danger-color);
+}
+.profile-page .profile-book-cover {
+    width: 75px;
+    height: 110px;
+    object-fit: cover;
+    box-shadow: var(--shadow-sm);
+}
+.profile-page .stretched-link-custom::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    content: "";
+}
+.profile-page .loan-timeline .progress {
+    background-color: var(--surface-secondary);
+}
+</style>
+
+<script>
+// Le script existant pour la gestion des onglets reste valide.
+document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if (hash) {
+        const tabButton = document.querySelector(`.nav-pills button[data-bs-target="${hash}"]`);
+        if (tabButton) {
+            const tab = new bootstrap.Tab(tabButton);
+            tab.show();
+        }
+    }
+    const profileTabs = document.querySelectorAll('#profileTab button[data-bs-toggle="tab"]');
+    profileTabs.forEach(tabEl => {
+        tabEl.addEventListener('shown.bs.tab', event => {
+            localStorage.setItem('activeProfileTab', event.target.dataset.bsTarget);
+            window.location.hash = event.target.dataset.bsTarget;
+        });
+    });
+    const activeTab = localStorage.getItem('activeProfileTab');
+    if (activeTab && !hash) { // Ne pas activer si un hash est déjà dans l'URL
+        const tabButtonToActivate = document.querySelector(`#profileTab button[data-bs-target="${activeTab}"]`);
+        if (tabButtonToActivate) {
+            const tab = new bootstrap.Tab(tabButtonToActivate);
+            tab.show();
+        }
+    }
+});
+</script>
+{% endblock %}

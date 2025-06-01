@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord Administrateur{% endblock %}
+
+{% block content %}
+<div class="container mt-4 admin-dashboard-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0 h2">Tableau de Bord Administrateur</h1>
+        <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour à la bibliothèque
+        </a>
+    </div>
+
+    <div class="row mb-4 g-3">
+        <div class="col-md-6 col-lg-3">
+            <div class="card kpi-card kpi-card-emprunt shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="kpi-icon mb-2"><i class="fas fa-hand-holding-heart fa-2x"></i></div>
+                    <h5 class="card-title fs-6">Demandes d'Emprunt</h5>
+                    <p class="display-5 fw-bold mb-0">{{ livres_en_demande_emprunt|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card kpi-card kpi-card-retour shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="kpi-icon mb-2"><i class="fas fa-undo-alt fa-2x"></i></div>
+                    <h5 class="card-title fs-6">Demandes de Retour</h5>
+                    <p class="display-5 fw-bold mb-0">{{ livres_en_attente_retour|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card kpi-card kpi-card-retard shadow-sm h-100 {% if livres_en_retard %}kpi-card-alert{% endif %}">
+                <div class="card-body text-center">
+                    <div class="kpi-icon mb-2"><i class="fas fa-exclamation-triangle fa-2x"></i></div>
+                    <h5 class="card-title fs-6">Livres en Retard</h5>
+                    <p class="display-5 fw-bold mb-0">{{ livres_en_retard|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card kpi-card kpi-card-total-empruntes shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="kpi-icon mb-2"><i class="fas fa-book-reader fa-2x"></i></div>
+                    <h5 class="card-title fs-6">Total Empruntés</h5>
+                    <p class="display-5 fw-bold mb-0">{{ livres_actuellement_empruntes|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 admin-section-card">
+        <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-hourglass-half me-2 text-primary"></i>Demandes d'emprunt en attente</span>
+            <span class="badge bg-primary rounded-pill">{{ livres_en_demande_emprunt|length }}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if livres_en_demande_emprunt %}
+                <div class="list-group list-group-flush">
+                    {% for livre in livres_en_demande_emprunt %}
+                    <div class="list-group-item p-3 admin-item-card">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto" style="max-width: 60px;">
+                                <img src="{{ livre.image_url or url_for('static', filename='images/default_cover_creative.png') }}" alt="Couv. {{ livre.titre }}" class="img-fluid rounded admin-book-cover">
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-1 h6">{{ livre.titre }}</h5>
+                                <p class="mb-1 text-muted small">par {{ livre.auteur }}</p>
+                                <p class="mb-0 text-muted small">Demandé par : <strong>{{ livre.emprunteur.username if livre.emprunteur else 'Utilisateur inconnu' }}</strong></p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-2 mt-md-0 action-buttons">
+                                <a href="{{ url_for('approuver_emprunt_route', titre=livre.titre) }}" class="btn btn-sm btn-success me-1 mb-1 mb-md-0">
+                                    <i class="fas fa-check"></i> Approuver
+                                </a>
+                                <a href="{{ url_for('refuser_emprunt_route', titre=livre.titre) }}" class="btn btn-sm btn-danger mb-1 mb-md-0">
+                                    <i class="fas fa-times"></i> Refuser
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-light text-center m-3">
+                    <i class="fas fa-check-circle fa-2x mb-2 text-muted d-block"></i>
+                    Aucune demande d'emprunt en attente.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 admin-section-card">
+        <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-clipboard-check me-2 text-success"></i>Demandes de retour en attente</span>
+            <span class="badge bg-success rounded-pill">{{ livres_en_attente_retour|length }}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if livres_en_attente_retour %}
+                <div class="list-group list-group-flush">
+                    {% for livre_detail in livres_en_attente_retour %}
+                    <div class="list-group-item p-3 admin-item-card">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto" style="max-width: 60px;">
+                                <img src="{{ livre_detail.image_url or url_for('static', filename='images/default_cover_creative.png') }}" alt="Couv. {{ livre_detail.titre }}" class="img-fluid rounded admin-book-cover">
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-1 h6">{{ livre_detail.titre }}</h5>
+                                <p class="mb-1 text-muted small">par {{ livre_detail.auteur }}</p>
+                                <p class="mb-0 text-muted small">Retour demandé par : <strong>{{ livre_detail.emprunteur.username if livre_detail.emprunteur else 'Utilisateur inconnu' }}</strong></p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-2 mt-md-0 action-buttons">
+                                <a href="{{ url_for('approuver_retour', titre=livre_detail.titre) }}" class="btn btn-sm btn-success w-md-auto">
+                                    <i class="fas fa-check-double"></i> Approuver Retour
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-light text-center m-3">
+                     <i class="fas fa-thumbs-up fa-2x mb-2 text-muted d-block"></i>
+                    Aucune demande de retour en attente.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if livres_en_retard %}
+    <div class="card shadow-sm mb-4 admin-section-card border-danger">
+        <div class="card-header fw-bold bg-danger text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-bell me-2"></i>Alertes : Livres en Retard</span>
+            <span class="badge bg-light text-danger rounded-pill">{{ livres_en_retard|length }}</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                {% for emprunt in livres_en_retard %}
+                {% if emprunt.media %}
+                <div class="list-group-item p-3 admin-item-card">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-auto" style="max-width: 60px;">
+                            <img src="{{ emprunt.media.image_url or url_for('static', filename='images/default_cover_creative.png') }}" alt="Couv. {{ emprunt.media.titre }}" class="img-fluid rounded admin-book-cover">
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1 h6 text-danger">{{ emprunt.media.titre }}</h5>
+                            <p class="mb-1 text-muted small">par {{ emprunt.media.auteur if emprunt.media.type == 'livre' else 'N/A' }}</p>
+                            <p class="mb-1 text-muted small">Emprunté par : <strong>{{ emprunt.user.username if emprunt.user else 'N/A' }}</strong></p>
+                            <p class="mb-0 text-muted small">Retour prévu le : {{ emprunt.date_retour_prevue|format_datetime('%d/%m/%Y') if emprunt.date_retour_prevue else 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-3 text-md-end mt-2 mt-md-0">
+                            {% set jours_retard = (now - emprunt.date_retour_prevue).days if emprunt.date_retour_prevue else 0 %}
+                            <span class="badge bg-danger fs-6">{{ jours_retard }} jour(s) de retard</span>
+                            {# Optionnel: Bouton pour envoyer un rappel #}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm mb-4 admin-section-card">
+        <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+           <span><i class="fas fa-tasks me-2 text-info"></i>Livres Actuellement Empruntés</span>
+           <span class="badge bg-info rounded-pill">{{ livres_actuellement_empruntes|length }}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if livres_actuellement_empruntes %}
+                <div class="list-group list-group-flush">
+                    {% for details_emprunt in livres_actuellement_empruntes %}
+                    {% if details_emprunt.media %}
+                    <div class="list-group-item p-3 admin-item-card">
+                        <div class="row g-3 align-items-center">
+                             <div class="col-auto" style="max-width: 60px;">
+                                <img src="{{ details_emprunt.media.image_url or url_for('static', filename='images/default_cover_creative.png') }}" alt="Couv. {{ details_emprunt.media.titre }}" class="img-fluid rounded admin-book-cover">
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-1 h6">{{ details_emprunt.media.titre }}</h5>
+                                <p class="mb-1 text-muted small">par {{ details_emprunt.media.auteur if details_emprunt.media.type == 'livre' else 'N/A' }}</p>
+                                <p class="mb-1 text-muted small">Emprunté par : <strong>{{ details_emprunt.user.username if details_emprunt.user else 'N/A' }}</strong></p>
+                                <p class="mb-0 text-muted small">Emprunté le : {{ details_emprunt.date_emprunt|format_datetime('%d/%m/%Y') if details_emprunt.date_emprunt else 'N/A' }} | Retour prévu : {{ details_emprunt.date_retour_prevue|format_datetime('%d/%m/%Y') if details_emprunt.date_retour_prevue else 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                 <div class="alert alert-light text-center m-3">
+                    <i class="fas fa-smile-beam fa-2x mb-2 text-muted d-block"></i>
+                    Aucun livre n'est actuellement emprunté.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Activer les animations pour les cartes dans le tableau de bord admin
+    const adminItemCards = document.querySelectorAll('.admin-dashboard-page .admin-item-card');
+    if (typeof observeAnimatedElements === 'function') {
+      observeAnimatedElements(adminItemCards);
+    } else {
+      console.warn("observeAnimatedElements function not found. Admin cards will appear without animation.");
+      adminItemCards.forEach(el => {
+        el.style.opacity = 1;
+        el.style.transform = 'translateY(0) scale(1)';
+      });
+    }
+  });
+</script>
+{% endblock %}

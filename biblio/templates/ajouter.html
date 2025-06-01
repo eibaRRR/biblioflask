@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajouter un livre{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card card-form">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="card-title text-center mb-4">Ajouter un nouveau livre</h2>
+                
+                <form action="{{ url_for('ajouter') }}" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.titre.label(class="form-label") }}
+                        {{ form.titre(class="form-control is-invalid" if form.titre.errors else "form-control") }}
+                        {% for error in form.titre.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.auteur.label(class="form-label") }}
+                        {{ form.auteur(class="form-control is-invalid" if form.auteur.errors else "form-control") }}
+                        {% for error in form.auteur.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.annee.label(class="form-label") }}
+                        {{ form.annee(class="form-control is-invalid" if form.annee.errors else "form-control") }}
+                        {% for error in form.annee.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.genre.label(class="form-label") }}
+                        {{ form.genre(class="form-control is-invalid" if form.genre.errors else "form-control") }}
+                        {% for error in form.genre.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.note.label(class="form-label") }}
+                        {{ form.note(class="form-select") }}
+                    </div>
+
+                    {# --- AJOUT DU CHAMP IMAGE_URL --- #}
+                    <div class="mb-3">
+                        {{ form.image_url.label(class="form-label") }}
+                        {{ form.image_url(class="form-control is-invalid" if form.image_url.errors else "form-control") }}
+                        {% for error in form.image_url.errors %}
+                            <div class=s"invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary me-md-2">Annuler</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des labels flottants
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.position-relative').querySelector('.floating-label').classList.add('label-active');
+        });
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.closest('.position-relative').querySelector('.floating-label').classList.remove('label-active');
+            }
+        });
+        // Vérification initiale pour les champs pré-remplis (si applicable)
+        if (input.value !== '') {
+            input.closest('.position-relative').querySelector('.floating-label').classList.add('label-active');
+        }
+    });
+
+    // Client-side form validation with visual feedback
+    const addBookForm = document.querySelector('#addBookForm');
+    const registerButton = document.querySelector('.btn-primary');
+
+    addBookForm.addEventListener('submit', function(e) {
+        let hasError = false;
+        // Validation des champs
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                hasError = true;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (hasError) {
+            e.preventDefault();
+            return false;
+        }
+
+        // Afficher un spinner de chargement lors de la soumission
+        registerButton.querySelector('.spinner-border').classList.remove('d-none');
+        registerButton.textContent = 'Ajout en cours...';
+        registerButton.disabled = true;
+    });
+});
+</script>
+<style>
+/* Custom styles for add book page */
+.card-form {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-form:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+}
+.floating-label {
+    position: absolute;
+    top: 50%;
+    left: 2.5rem;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+.label-active {
+    top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--primary-accent);
+}
+.form-control-lg {
+    padding: 1.2rem 1rem 0.5rem 2.5rem;
+    border-radius: var(--radius);
+    background-color: transparent;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+.form-control-lg:focus {
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-accent-rgb), 0.25);
+    background-color: transparent;
+    color: var(--text-primary);
+}
+.input-group-text {
+    padding-left: 0.5rem;
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}

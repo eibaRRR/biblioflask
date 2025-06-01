@@ -1,0 +1,117 @@
+[
+    {
+        "titre": "L'Étranger",
+        "auteur": "Albert Camus",
+        "annee": "1942",
+        "genre": "Philosophique",
+        "note": 5,
+        "description": "Un roman qui explore les thèmes de l'absurdité de l'existence...",
+        "statut": {
+            "etat": "disponible",
+            "par_id": null
+        },
+        "image_url": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1367252233l/157993.jpg",
+        "reservations": [],
+        "emprunteur_nom": null
+    
+    },
+    {
+        "titre": "Le Petit Prince",
+        "auteur": "Antoine de Saint-Exupéry",
+        "annee": "1943",
+        "genre": "Conte philosophique",
+        "note": 5,
+        "description": "Un conte poétique et philosophique sous l'apparence d'un livre pour enfants...",
+        "statut": {
+            "etat": "disponible",
+            "par_id": null
+        },
+        "reservations": [],
+        "emprunteur_nom": null
+    },
+    {
+        "titre": "Voyage au bout de la nuit",
+        "auteur": "Louis-Ferdinand Céline",
+        "annee": "1932",
+        "genre": "Roman",
+        "note": 5,
+        "description": "Un roman picaresque et nihiliste qui a marqué une rupture dans la littérature française par son style oral et son pessimisme radical.",
+        "statut": {
+            "etat": "disponible",
+            "par_id": null
+        },
+        "reservations": [],
+        "emprunteur_nom": null
+    },
+    {
+        "titre": "1984",
+        "auteur": "George Orwell",
+        "annee": "1949",
+        "genre": "Dystopie",
+        "note": 5,
+        "description": "Un roman d'anticipation emblématique décrivant une société totalitaire sous la surveillance constante de Big Brother.",
+        "statut": {
+            "etat": "disponible",
+            "par_id": null
+        },
+        "reservations": [],
+        "emprunteur_nom": null
+    },
+    {
+        "titre": "Dune",
+        "auteur": "Frank Herbert",
+        "annee": "1965",
+        "genre": "Science-Fiction",
+        "note": 4,
+        "description": "Une épopée de science-fiction se déroulant sur la planète désertique Arrakis, seule source de l'Épice, une substance la plus précieuse de l'univers.",
+        "statut": {
+            "etat": "disponible",
+            "par_id": null
+        },
+        "reservations": [],
+        "emprunteur_nom": null
+    },
+    {
+        "titre": "Le Rouge et le Noir",
+        "auteur": "Stendhal",
+        "annee": "1830",
+        "genre": "Roman psychologique",
+        "note": 4,
+        "description": "Chronique de la France du XIXe siècle à travers l'ascension sociale et les amours tumultueuses de Julien Sorel.",
+        "statut": {
+            "etat": "emprunté",
+            "par_id": 3
+        },
+        "reservations": [],
+        "emprunteur_nom": "mrwisky1dd"
+    },
+    {
+        "titre": "1655",
+        "auteur": "marwans",
+        "annee": "2000",
+        "genre": "Conte",
+        "note": 4,
+        "description": "qlq resune",
+        "statut": {
+            "etat": "disponible",
+            "par_id": null
+        },
+        "reservations": [],
+        "emprunteur_nom": null
+    },
+    {
+        "titre": "1555",
+        "auteur": "marwan",
+        "annee": "1944",
+        "genre": "Conte",
+        "note": 3,
+        "description": "qlq resume ",
+        "statut": {
+            "etat": "disponible",
+            "par_id": null
+        },
+        "reservations": [],
+        "emprunteur_nom": null
+    }
+    
+]

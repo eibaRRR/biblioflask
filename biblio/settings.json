@@ -1,0 +1,16 @@
+{
+    "max_loans_per_user": 2,
+    "loan_duration_days": 7,
+    "categories": [
+        "Biographie",
+        "Conte",
+        "Dystopie",
+        "Philosophique",
+        "Roman",
+        "Science-Fiction"
+    ],
+    "notification_templates": {
+        "loan_approved": "🎉 Bonne nouvelle ! Votre demande d'emprunt pour le livre \"{livre_titre}\" a été approuvée.",
+        "loan_refused": "ℹ️ Votre demande d'emprunt pour le livre \"{livre_titre}\" a été refusée par un administrateur."
+    }
+}

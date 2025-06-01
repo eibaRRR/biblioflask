@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ livre.titre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm book-detail-card">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="{{ livre.image_url or url_for('static', filename='images/default_cover.png') }}"
+                     class="book-detail-image"
+                     alt="Couverture de {{ livre.titre }}">
+            </div>
+
+            <div class="col-md-8">
+                <div class="card-body p-4 book-details-content">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="card-title h2 mb-1">{{ livre.titre }}</h1>
+                            <h2 class="card-subtitle mb-2 text-muted h5">par {{ livre.auteur }}</h2>
+                        </div>
+                        <div class="star-rating fs-5">
+                            {% set note = livre.note|int %}
+                            {% for i in range(1, 6) %}
+                                <i class="fa-star {% if i <= note %}fas{% else %}far{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <p class="card-text mt-3">
+                        <strong>Année :</strong> {{ livre.annee }}<br>
+                        <strong>Genre :</strong> <span class="badge bg-secondary">{{ livre.genre }}</span>
+                    </p>
+                    
+                    <div class="mt-4">
+                        <h5 class="mb-2 fw-bold">Description</h5>
+                        <p class="text-body-secondary" style="white-space: pre-wrap; font-size: 0.95rem;">{{ livre.description or "Aucune description disponible." }}</p>
+                    </div>
+                    
+                    <div class="mt-4 pt-3 border-top">
+                        <h5 class="fw-bold mb-3">Statut</h5>
+                        {% if livre.statut_etat == 'disponible' %}
+                            <p class="mb-0"><span class="status-badge status-disponible fs-6">Disponible</span></p>
+                        {% elif livre.statut_etat == 'demande_emprunt_en_attente' %}
+                            <p class="mb-0"><span class="status-badge status-demande fs-6">Demande d'emprunt</span></p>
+                            <p class="small text-muted mt-1">Demandé par {{ livre.emprunteur.username if livre.emprunteur }}.</p>
+                        {% elif livre.statut_etat == 'retour_en_attente' %}
+                            <p class="mb-0"><span class="status-badge status-emprunte fs-6 text-dark">Retour en attente</span></p>
+                             <p class="small text-muted mt-1">Emprunté par {{ livre.emprunteur.username if livre.emprunteur }}.</p>
+                        {% elif livre.statut_etat == 'emprunté' %}
+                            <p class="mb-0"><span class="status-badge status-emprunte fs-6 text-dark">Emprunté</span> par {{ livre.emprunteur.username if livre.emprunteur }}.</p>
+                            {% set reservations_count = livre.reservations|length %}
+                            {% if reservations_count > 0 %}
+                                <p class="small text-muted mt-1">{{ reservations_count }} réservation(s) en cours.</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-start gap-2 flex-wrap align-items-center">
+                            
+                            {% if current_user.is_authenticated and current_user.role != 'admin' %}
+                                {% if livre.statut_etat == 'disponible' %}
+                                    <a href="{{ url_for('demander_emprunt', titre=livre.titre) }}" class="btn btn-primary">
+                                        <i class="fas fa-hand-holding-heart me-1"></i> Demander l'emprunt
+                                    </a>
+                                {% elif livre.statut_etat in ['emprunté', 'retour_en_attente'] %}
+                                    {% if livre.emprunte_par_id == current_user.id %}
+                                        {% if livre.statut_etat == 'emprunté' %}
+                                            <a href="{{ url_for('demander_retour', titre=livre.titre) }}" class="btn btn-success">
+                                                <i class="fas fa-undo me-1"></i> Demander le retour
+                                            </a>
+                                        {% else %}
+                                            <button class="btn btn-outline-secondary" disabled>Retour déjà demandé</button>
+                                        {% endif %}
+                                    {% elif current_user.id not in livre.reservation_user_ids %}
+                                        <a href="{{ url_for('reserver', titre=livre.titre) }}" class="btn btn-warning">
+                                            <i class="fas fa-bookmark me-1"></i> Réserver
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-outline-secondary" disabled>Déjà réservé</button>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+
+                            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                                <a href="{{ url_for('modifier', titre=livre.titre) }}" class="btn btn-outline-info">
+                                    <i class="fas fa-edit me-1"></i> Modifier
+                                </a>
+                                <a href="{{ url_for('supprimer', titre=livre.titre) }}" class="btn btn-outline-danger delete-btn" data-book-title="{{ livre.titre }}">
+                                    <i class="fas fa-trash me-1"></i> Supprimer
+                                </a>
+                            {% endif %}
+
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary ms-auto">
+                                <i class="fas fa-arrow-left me-1"></i> Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if recommandations %}
+<div class="container mt-5 pt-4 border-top recommendations-section"> 
+    <h3 class="mb-4 text-center genre-title"><span>Vous pourriez aussi aimer...</span></h3>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for reco_livre in recommandations %}
+        <div class="col book-card-wrapper">
+            <div class="card h-100 book-card shadow-sm">
+                <a href="{{ url_for('details_livre', titre=reco_livre.titre) }}" class="text-decoration-none book-card-image-link">
+                    <img src="{{ reco_livre.image_url or url_for('static', filename='images/default_cover_creative.png') }}"
+                         class="card-img-top"
+                         alt="Couverture de {{ reco_livre.titre }}"
+                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default_cover_creative.png') }}';">
+                </a>
+                <div class="card-body d-flex flex-column">
+                    <div class="flex-grow-1 mb-2">
+                        <div class="star-rating mb-1">
+                            {% set note = reco_livre.note|int %}
+                            {% for i in range(1, 6) %}<i class="fa-star {% if i <= note %}fas{% else %}far{% endif %}"></i>{% endfor %}
+                        </div>
+                        <a href="{{ url_for('details_livre', titre=reco_livre.titre) }}" class="text-decoration-none">
+                            <h5 class="card-title mb-1">{{ reco_livre.titre }}</h5>
+                        </a>
+                        <h6 class="card-subtitle text-muted small">par {{ reco_livre.auteur }}</h6>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0 pt-2 pb-3 px-3">
+                    <a href="{{ url_for('details_livre', titre=reco_livre.titre) }}" class="btn btn-sm btn-outline-primary w-100 details-button">
+                        Voir les détails <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{# Ce script est maintenant dans le bon bloc pour être exécuté APRÈS main.js #}
+{% block page_scripts %}
+<script>
+  // Ce script s'exécute après main.js, donc la fonction est définie
+  const recommendedBooks = document.querySelectorAll('.recommendations-section .book-card-wrapper');
+  
+  if (typeof observeAnimatedElements === 'function') {
+    observeAnimatedElements(recommendedBooks);
+  } else {
+    // Sécurité au cas où: on rend les cartes visibles même sans animation
+    // Cela peut arriver si main.js a une erreur et ne se charge pas.
+    console.warn("observeAnimatedElements function not found. Making recommendation cards visible directly.");
+    recommendedBooks.forEach(el => {
+        el.style.opacity = 1;
+        el.style.transform = 'translateY(0) scale(1)'; // Assure la visibilité
+    });
+  }
+</script>
+{% endblock %}
