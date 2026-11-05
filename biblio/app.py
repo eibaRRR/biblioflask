@@ -1,6 +1,7 @@
 # biblio/app.py
 # app.py - Version entièrement mise à jour pour SQLAlchemy
 
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from functools import wraps
@@ -18,7 +19,7 @@ from collections import Counter
 
 
 app = Flask(__name__)
-app.secret_key = '***REDACTED***'
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 
 # --- CONFIGURATION DE LA BASE DE DONNÉES SQLALCHEMY ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///biblio.db'
@@ -786,7 +787,7 @@ def init_db_command():
 
 if __name__ == '__main__':
     with app.app_context():
-        # db.create_all() # Ensure tables are created when running directly
+        db.create_all()  # Ensure tables are created when running directly
         # Check if admin user exists, if not create one (for initial setup)
         if not User.query.filter_by(username="admin").first():
             admin_user = User(username="admin", password="admin", role="admin") # Set a secure password in production
