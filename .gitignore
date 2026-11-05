@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Flask runtime
+instance/
+*.db
+
+# Environment
+.env
